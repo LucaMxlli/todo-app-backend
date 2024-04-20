@@ -1,0 +1,20 @@
+version: "3.9"
+
+name: coustra
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: Coustra-Postgres
+    restart: unless-stopped
+    ports:
+      - "5900:5432"
+    volumes:
+      - coustra_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: coustra
+      POSTGRES_PASSWORD: SomethingSecure!123
+      POSTGRES_DB: coustra
+
+volumes:
+  coustra_data:
