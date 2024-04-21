@@ -15,7 +15,7 @@ model FeeType {
 }
 
 model Fees {
-  amount    BigInt
+  amount    Int
   validFrom DateTime @default(now())
   feeTypeId Int
   feeType   FeeType  @relation(fields: [feeTypeId], references: [id])
@@ -69,12 +69,14 @@ model Coin {
   bannerImage    String
   description    String
   holdDuration   Int                @default(2)
-  totalRaise     BigInt             @default(100000000000)
+  totalRaise     Int                @default(100000000)
   type           String             @default("fair-launch")
   minInvestment  Decimal            @default(0.01)
   maxInvestment  Decimal            @default(0.1)
   totalSupply    Decimal            @default(1000000000)
   decimals       Int                @default(9)
+  opensAt        DateTime           @default(now())
+  closesAt       DateTime           @default(now())
   userId         Int
   createdAt      DateTime           @default(now())
   tradeLink      String?
@@ -154,7 +156,7 @@ model Investment {
   coinId           Int
   userId           Int
   placedAt         DateTime                 @default(now())
-  amount           BigInt
+  amount           Int
   signature        String                   @unique
   isApproved       Boolean                  @default(false)
   investmentTypeId Int

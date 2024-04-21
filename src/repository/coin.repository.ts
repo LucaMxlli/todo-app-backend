@@ -25,7 +25,7 @@ export class CoinRepo implements ICoinRepo {
       throw new Error('Coin does not exist');
     }
 
-    return state[0].state;
+    return state[0];
   }
 
   async checkCoinExists(coinId: number) {
@@ -39,9 +39,48 @@ export class CoinRepo implements ICoinRepo {
   }
 
   async getCoins(state: string) {
-    const coins = await prisma.coin.findMany();
+    const coins = await prisma.coin.findMany({
+      include: {
+        Tokenomics: {
+          include: {
+            tokenomicsType: true,
+          },
+        },
+        platformLinks: {
+          include: {
+            platformType: true,
+          },
+        },
+        currentState: {
+          where: {
+            validFrom: {
+              lte: new Date(),
+            },
+          },
+          orderBy: {
+            validFrom: 'desc',
+          },
+          take: 1,
+          include: {
+            state: true,
+          },
+        },
+      },
+    });
 
-    return coins;
+    const mapped = coins.map(async (c) => {
+      const current = await this.getCoinCurrent(c.id);
+      const supporters = await this.getCoinSupporters(c.id);
+      return {
+        ...c,
+        current,
+        supporters,
+      };
+    });
+
+    const results = await Promise.all(mapped);
+
+    return results;
   }
 
   async getCoinById(coinId: number) {
@@ -49,11 +88,43 @@ export class CoinRepo implements ICoinRepo {
       where: {
         id: coinId,
       },
+      include: {
+        Tokenomics: {
+          include: {
+            tokenomicsType: true,
+          },
+        },
+        platformLinks: {
+          include: {
+            platformType: true,
+          },
+        },
+        currentState: {
+          where: {
+            validFrom: {
+              lte: new Date(),
+            },
+          },
+          orderBy: {
+            validFrom: 'desc',
+          },
+          take: 1,
+          include: {
+            state: true,
+          },
+        },
+      },
     });
 
     if (coin === null) {
       throw new Error('Coin does not exist');
     }
+
+    const current = await this.getCoinCurrent(coinId);
+    const supporters = await this.getCoinSupporters(coinId);
+
+    (coin as any).current = current;
+    (coin as any).supporters = supporters;
 
     return coin;
   }
@@ -61,7 +132,34 @@ export class CoinRepo implements ICoinRepo {
   async getFeaturedCoins() {
     const coins = await prisma.featuredCoin.findMany({
       include: {
-        coin: true,
+        coin: {
+          include: {
+            Tokenomics: {
+              include: {
+                tokenomicsType: true,
+              },
+            },
+            platformLinks: {
+              include: {
+                platformType: true,
+              },
+            },
+            currentState: {
+              where: {
+                validFrom: {
+                  lte: new Date(),
+                },
+              },
+              orderBy: {
+                validFrom: 'desc',
+              },
+              take: 1,
+              include: {
+                state: true,
+              },
+            },
+          },
+        },
       },
       take: 6,
       orderBy: {
@@ -69,7 +167,19 @@ export class CoinRepo implements ICoinRepo {
       },
     });
 
-    return coins.map((c) => c.coin);
+    const mapped = coins.map(async (c) => {
+      const current = await this.getCoinCurrent(c.coin.id);
+      const supporters = await this.getCoinSupporters(c.coin.id);
+      return {
+        ...c.coin,
+        current,
+        supporters,
+      };
+    });
+
+    const results = await Promise.all(mapped);
+
+    return results;
   }
 
   async getCoinStateByName(state: string) {
@@ -104,5 +214,144 @@ export class CoinRepo implements ICoinRepo {
     const coin = await this.getCoinById(coinId);
 
     return coin;
+  }
+
+  async getTokenomics(coinId: number) {
+    const tokenomics = await prisma.tokenomics.findMany({
+      where: {
+        coinId: coinId,
+      },
+      include: {
+        tokenomicsType: true,
+      },
+    });
+
+    return tokenomics;
+  }
+
+  async getSocials(coinId: number) {
+    const socials = await prisma.platformLink.findMany({
+      where: {
+        coinId: coinId,
+      },
+      include: {
+        platformType: true,
+      },
+    });
+
+    return socials;
+  }
+
+  async getOwnCoins(walletAddress: string) {
+    const user = await prisma.user.findUnique({
+      where: {
+        walletAddress: walletAddress,
+      },
+      include: {
+        coin: {
+          include: {
+            Tokenomics: {
+              include: {
+                tokenomicsType: true,
+              },
+            },
+            platformLinks: {
+              include: {
+                platformType: true,
+              },
+            },
+            currentState: {
+              where: {
+                validFrom: {
+                  lte: new Date(),
+                },
+              },
+              orderBy: {
+                validFrom: 'desc',
+              },
+              take: 1,
+              include: {
+                state: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (user === null) {
+      throw new Error('User does not exist');
+    }
+
+    const coins = await prisma.coin.findMany({
+      where: {
+        userId: 1,
+      },
+    });
+
+    const mapped = coins.map(async (c) => {
+      const current = await this.getCoinCurrent(c.id);
+      const supporters = await this.getCoinSupporters(c.id);
+      return {
+        ...c,
+        current,
+        supporters,
+      };
+    });
+
+    const results = await Promise.all(mapped);
+
+    return results;
+  }
+
+  async getCoinInvestments(coinId: number, target?: boolean) {
+    const investments = await prisma.investment.findMany({
+      where: {
+        coinId: coinId,
+      },
+      include: {
+        currentState: {
+          where: {
+            validFrom: {
+              lte: new Date(),
+            },
+          },
+          orderBy: {
+            validFrom: 'desc',
+          },
+          take: 1,
+          include: {
+            state: true,
+          },
+        },
+        investmentType: {
+          include: {
+            fee: true,
+          },
+        },
+      },
+    });
+
+    if (target) {
+      const targetInvestments = investments.filter((i) => {
+        return i.investmentType.name === 'Investment' && i.isApproved && i.currentState[0].state.name === 'Pending';
+      });
+      return targetInvestments;
+    }
+
+    return investments;
+  }
+
+  async getCoinSupporters(coinId: number) {
+    return (await this.getCoinInvestments(coinId, true)).length;
+  }
+
+  async getCoinCurrent(coinId: number) {
+    const investments = await this.getCoinInvestments(coinId, true);
+    const current = investments.reduce((acc, curr) => {
+      return acc + curr.amount;
+    }, 0);
+
+    return current;
   }
 }

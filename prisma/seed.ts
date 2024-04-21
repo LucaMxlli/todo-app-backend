@@ -48,7 +48,7 @@ export async function seedData() {
   // Fees
   await prisma.fees.createMany({
     data: [
-      { amount: 1000000000, feeTypeId: 1 },
+      { amount: 10000000, feeTypeId: 1 },
       { amount: 100000, feeTypeId: 2 },
     ],
   });
@@ -149,7 +149,7 @@ export async function seedData() {
         coinId: 1,
         userId: 1,
         investmentTypeId: 1,
-        amount: 1000000000000,
+        amount: 1000000000,
         placedAt: new Date('2023-02-01'),
         isApproved: false,
         signature: '0x12345678910',
