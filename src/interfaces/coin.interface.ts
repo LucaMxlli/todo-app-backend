@@ -6,7 +6,8 @@ export interface ICoinController {
   getCoinById(req: Request, res: Response): Promise<void>;
   getOwnCoins(req: Request, res: Response): Promise<void>;
   getFeaturedCoins(req: Request, res: Response): Promise<void>;
-  getCoinContribtion(req: Request, res: Response): Promise<void>;
+  getCoinContribution(req: Request, res: Response): Promise<void>;
+  getInvestmentOfCoin(req: Request, res: Response): Promise<void>;
   // createCoin(req: Request, res: Response): Promise<void>;
   // updateSPLCoin(req: Request, res: Response): Promise<void>;
   // updatePool(req: Request, res: Response): Promise<void>;

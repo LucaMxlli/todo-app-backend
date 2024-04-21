@@ -31,10 +31,10 @@ export const getCoinOverview = (coin: any): ICoinOverview => {
 
 //TODO: needs to be finished -> please keep in mind that some values need to be calculated -> set them to zero by default
 
-export const getCoinDetail = (coin: any): ICoin => {
+export const getCoinDetail = (coin: any): any => {
   return {
     id: coin.id,
-    symboldImage: coin.symbolImage,
+    symbolImage: coin.symbolImage,
     bannerImage: coin.bannerImage,
     state: coin.currentState[0].state.name,
     name: coin.name,
@@ -42,9 +42,9 @@ export const getCoinDetail = (coin: any): ICoin => {
     description: coin.description,
     socials: coin.platformLinks.map((s: any) => {
       return {
-        id: s.id,
-        name: s.socialType.name,
-        value: s.value,
+        id: s.platformType.id,
+        name: s.platformType?.name,
+        value: s.link,
       };
     }),
     contractAddress: coin.contactAddress || '',
@@ -66,5 +66,28 @@ export const getCoinDetail = (coin: any): ICoin => {
         value: t.value,
       };
     }),
+  };
+};
+
+export const getCoinInvestment = (investment: any): IInvestment => {
+  return {
+    signature: investment.signature,
+    date: investment.placedAt,
+    isConfirmed: investment.isApproved,
+    state: investment?.currentState[0]?.state.name || '',
+    amount: investment.amount,
+    type: {
+      name: investment.investmentType.name,
+      fee: investment.investmentType.fee.name,
+    },
+  };
+};
+
+export const getCoinContribution = (coin: any): ICoinContribution => {
+  return {
+    deposit: coin.deposit,
+    shares: coin.shares,
+    allocation: coin.allocation,
+    claimed: coin.claimed,
   };
 };

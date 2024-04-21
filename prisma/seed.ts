@@ -118,11 +118,26 @@ export async function seedData() {
 
   // CoinCurrentState - Assuming Coin and CoinState IDs start at 1
   await prisma.coinCurrentState.createMany({
-    data: [{ coinId: 1, stateId: 1, validFrom: new Date('2023-01-01') }],
+    data: [
+      { coinId: 1, stateId: 1, validFrom: new Date('2024-01-02') },
+      { coinId: 1, stateId: 2, validFrom: new Date('2024-08-07') },
+    ],
   });
 
   await prisma.balanceTransactionType.createMany({
     data: [{ name: 'Refund' }, { name: 'Investment' }, { name: 'Credit' }],
+  });
+
+  await prisma.balanceTransaction.createMany({
+    data: [
+      {
+        userId: 1,
+        value: 100000000,
+        typeId: 2,
+        approved: true,
+        transacted_at: new Date('2023-01-01'),
+      },
+    ],
   });
 
   await prisma.investmentType.createMany({
@@ -142,7 +157,7 @@ export async function seedData() {
         investmentTypeId: 1,
         amount: 100000000,
         placedAt: new Date('2023-01-01'),
-        isApproved: false,
+        isApproved: true,
         signature: '0x1234567890',
       },
       {

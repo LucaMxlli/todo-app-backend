@@ -3,7 +3,7 @@ import { ICoinController } from '@/interfaces/coin.interface';
 import { StatusCodes } from 'http-status-codes';
 import { response } from '@/lib/response.lib';
 import { CoinRepo } from '@/repository/coin.repository';
-import { getCoinDetail, getCoinOverview } from '@/lib/funding-calc';
+import { getCoinContribution, getCoinDetail, getCoinInvestment, getCoinOverview } from '@/lib/funding-calc';
 
 const coinRepo = new CoinRepo();
 
@@ -22,13 +22,12 @@ export class CoinController implements ICoinController {
 
   async getCoinById(req: Request, res: Response): Promise<void> {
     try {
-      const coinId = parseInt(req.params.coinId);
-
-      if (isNaN(coinId)) {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
         throw new Error('Invalid coin id');
       }
 
-      const coin = await coinRepo.getCoinById(coinId);
+      const coin = await coinRepo.getCoinById(id);
       const calced = getCoinDetail(coin);
       res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Coin fetched successfully', calced));
     } catch (error: any) {
@@ -61,11 +60,31 @@ export class CoinController implements ICoinController {
     }
   }
 
-  async getCoinContribtion(req: Request, res: Response): Promise<void> {
+  async getInvestmentOfCoin(req: Request, res: Response): Promise<void> {
+    try {
+      const coinId = parseInt(req.params.id);
+      if (isNaN(coinId)) {
+        throw new Error('Invalid coin id');
+      }
+
+      const investments = await coinRepo.getCoinInvestments(coinId);
+      const calced = investments.map((investment: any) => {
+        return getCoinInvestment(investment);
+      });
+      res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Investments fetched successfully', calced));
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json(response(StatusCodes.BAD_REQUEST, error.message, null));
+    }
+  }
+
+  async getCoinContribution(req: Request, res: Response): Promise<void> {
     try {
       const walletAddress = req.query.walletAddress as string;
       const coins = await coinRepo.getOwnCoins(walletAddress);
-      res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Coins fetched successfully', coins));
+      const calced = coins.map((coin: any) => {
+        return getCoinContribution(coin);
+      });
+      res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Coins fetched successfully', calced));
     } catch (error: any) {
       res.status(StatusCodes.BAD_REQUEST).json(response(StatusCodes.BAD_REQUEST, error.message, null));
     }

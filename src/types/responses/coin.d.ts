@@ -19,7 +19,7 @@ export interface ICoinOverview {
 
 export interface ICoin {
   id: number;
-  symboldImage: string;
+  symbolImage: string;
   bannerImage: string;
   state: string;
   name: string;

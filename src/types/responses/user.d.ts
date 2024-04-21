@@ -1,4 +1,4 @@
-interface IRefunds {
+interface IRefund {
   id: number;
   amount: number;
   type: string;
