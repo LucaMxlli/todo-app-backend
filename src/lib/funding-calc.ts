@@ -1,5 +1,4 @@
 import { ICoin, ICoinOverview } from '@/types/responses/coin';
-import { Coin } from '@prisma/client';
 
 export const getCoinOverview = (coin: any): ICoinOverview => {
   const type = coin.type;
@@ -32,40 +31,40 @@ export const getCoinOverview = (coin: any): ICoinOverview => {
 
 //TODO: needs to be finished -> please keep in mind that some values need to be calculated -> set them to zero by default
 
-// export const getCoinDetail = (coin: any): ICoin => {
-// return {
-//   id: coin.id,
-//   symboldImage: coin.symbolImage,
-//   bannerImage: coin.bannerImage,
-//   state: coin.currentState[0].state.name,
-//   name: coin.name,
-//   symbol: coin.symbolName,
-//   description: coin.description,
-//   socials: coin.socials.map((s: any) => {
-//     return {
-//       id: s.id,
-//       name: s.socialType.name,
-//       value: s.value,
-//     };
-//   }),
-//   contractAddress: coin.contactAddress || '',
-//   decimals: coin.decimals,
-//   totalSupply: coin.totalSupply,
-//   target: coin.totalRaise,
-//   current: coin.current,
-//   softcap: coin.softcap,
-//   price: coin.price,
-//   opens: coin.opensAt,
-//   closes: coin.closesAt,
-//   minPurchase: coin.minPurchase,
-//   maxPurchase: coin.maxPurchase,
-//   currentRate: coin.currentRate,
-//   holdDuration: coin.holdDuration,
-//   tokenomics: coin.Tokenomics.map((t: any) => {
-//     return {
-//       type: t.tokenomicsType.name,
-//       value: t.value,
-//     };
-//   }),
-// };
-// };
+export const getCoinDetail = (coin: any): ICoin => {
+  return {
+    id: coin.id,
+    symboldImage: coin.symbolImage,
+    bannerImage: coin.bannerImage,
+    state: coin.currentState[0].state.name,
+    name: coin.name,
+    symbol: coin.symbolName,
+    description: coin.description,
+    socials: coin.platformLinks.map((s: any) => {
+      return {
+        id: s.id,
+        name: s.socialType.name,
+        value: s.value,
+      };
+    }),
+    contractAddress: coin.contactAddress || '',
+    decimals: coin.decimals,
+    totalSupply: coin.totalSupply,
+    target: coin.totalRaise,
+    current: coin.current,
+    softcap: coin.softcap,
+    price: coin.price,
+    opens: coin.opensAt,
+    closes: coin.closesAt,
+    minPurchase: coin.minPurchase,
+    maxPurchase: coin.maxPurchase,
+    currentRate: coin.currentRate,
+    holdDuration: coin.holdDuration,
+    tokenomics: coin.Tokenomics.map((t: any) => {
+      return {
+        type: t.tokenomicsType.name,
+        value: t.value,
+      };
+    }),
+  };
+};
