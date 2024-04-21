@@ -14,15 +14,15 @@ export class UserRepo implements IUserRepo {
 
   async registerUser(walletAddress: string): Promise<any> {
     const userExists = await this.getUserByWalletAddress(walletAddress);
-    if (userExists) {
-      throw new Error('User already exists');
+    if (!userExists) {
+      await prisma.user.create({
+        data: {
+          walletAddress: walletAddress,
+        },
+      });
     }
-    const user = await prisma.user.create({
-      data: {
-        walletAddress: walletAddress,
-      },
-    });
-    return user;
+
+    return true;
   }
 
   async getBalanceFromUser(walletAddress: string): Promise<any> {
@@ -53,5 +53,5 @@ export class UserRepo implements IUserRepo {
     const totalBalance = investments.reduce((acc, investment) => acc + investment.amount, 0);
 
     return totalBalance;
-}
+  }
 }
