@@ -1,6 +1,5 @@
 import { ICoinRepo } from '@/interfaces/coin.interface';
 import { PrismaClient } from '@prisma/client';
-import { some } from 'cypress/types/bluebird';
 
 const prisma = new PrismaClient();
 
@@ -38,7 +37,68 @@ export class CoinRepo implements ICoinRepo {
     return coin !== null;
   }
 
-  async getCoins(state: string) {
+  async getInvolvedCoins(walletAddress: string) {
+    const user = await prisma.user.findUnique({
+      where: {
+        walletAddress: walletAddress,
+      },
+    });
+
+    if (user === null) {
+      throw new Error('User does not exist');
+    }
+
+    const investmentCoins = await prisma.investment.findMany({
+      where: {
+        userId: user.id,
+      },
+      include: {
+        coin: {
+          include: {
+            Tokenomics: {
+              include: {
+                tokenomicsType: true,
+              },
+            },
+            platformLinks: {
+              include: {
+                platformType: true,
+              },
+            },
+            currentState: {
+              where: {
+                validFrom: {
+                  lte: new Date(),
+                },
+              },
+              orderBy: {
+                validFrom: 'desc',
+              },
+              take: 1,
+              include: {
+                state: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const coins = investmentCoins.map(async (i) => {
+      const coin = await this.getCoinById(i.coinId);
+      return {
+        ...coin,
+        tokenomics: await this.getTokenomics(i.coinId),
+      };
+    });
+
+    const results = await Promise.all(coins);
+    const unique = results.filter((v, i, a) => a.findIndex((t) => t.id === v.id) === i);
+
+    return unique;
+  }
+
+  async getCoins(state?: string) {
     const coins = await prisma.coin.findMany({
       include: {
         Tokenomics: {
@@ -68,7 +128,16 @@ export class CoinRepo implements ICoinRepo {
       },
     });
 
-    const mapped = coins.map(async (c) => {
+    let filteredCoins = coins;
+    if (state) {
+      filteredCoins = coins.filter((c) => {
+        if (c.currentState.length >= 0 && c.currentState[0]?.state.name === state) {
+          return c.currentState[0].state.name === state;
+        }
+      });
+    }
+
+    const mapped = filteredCoins.map(async (c) => {
       const current = await this.getCoinCurrent(c.id);
       const supporters = await this.getCoinSupporters(c.id);
       return {
@@ -285,17 +354,35 @@ export class CoinRepo implements ICoinRepo {
 
     const coins = await prisma.coin.findMany({
       where: {
-        userId: 1,
+        userId: user.id,
+      },
+      include: {
+        currentState: {
+          where: {
+            validFrom: {
+              lte: new Date(),
+            },
+          },
+          orderBy: {
+            validFrom: 'desc',
+          },
+          take: 1,
+          include: {
+            state: true,
+          },
+        },
       },
     });
 
     const mapped = coins.map(async (c) => {
       const current = await this.getCoinCurrent(c.id);
       const supporters = await this.getCoinSupporters(c.id);
+      const tokenomics = await this.getTokenomics(c.id);
       return {
         ...c,
         current,
         supporters,
+        tokenomics: tokenomics,
       };
     });
 

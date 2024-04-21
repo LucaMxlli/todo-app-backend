@@ -2,6 +2,7 @@ import { ICoin, ICoinOverview } from '@/types/responses/coin';
 
 export const getCoinOverview = (coin: any): ICoinOverview => {
   const type = coin.type;
+
   let presale = coin.Tokenomics.find((t: any) => t.tokenomicsType.name === 'Presale')?.value || 0;
   let price = 0;
 
@@ -13,7 +14,7 @@ export const getCoinOverview = (coin: any): ICoinOverview => {
     id: coin.id,
     bannerImage: coin.bannerImage,
     symboldImage: coin.symbolImage,
-    state: coin.currentState[0].state.name,
+    state: (coin.currentState[0] as any)?.state.name || '',
     name: coin.name,
     symbol: coin.symbolName,
     contractAddress: coin.contactAddress || '',
@@ -83,6 +84,7 @@ export const getCoinInvestment = (investment: any): IInvestment => {
   };
 };
 
+// TODO: calc contribution
 export const getCoinContribution = (coin: any): ICoinContribution => {
   return {
     deposit: coin.deposit,

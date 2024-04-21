@@ -26,8 +26,6 @@ export const checkWalletAddress = async (wallet_address: string) => {
     const publicKey = new PublicKey(wallet_address);
     const balance = await solanaConnection.getBalance(publicKey);
 
-    console.log('blance', balance);
-
     if (isNaN(balance)) {
       throw new Error('Balance not found');
     }
@@ -77,7 +75,6 @@ export const getTransactionDetails = async (signature: string) => {
     }
   );
   if (!transactionDetails) {
-    console.log('No transactions found');
     return;
   }
 

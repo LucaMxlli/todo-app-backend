@@ -36,6 +36,10 @@ export async function seedData() {
         walletAddress: 'A713ApR6DiuiKaZXhX4jR6R2i55UVBZiCf32RdnzPUAk',
         isPrivileged: true,
       },
+      {
+        walletAddress: 'A5813ApR6DiuiKaZXhX4jR6R2i55UVBZiCf32RdnzPUAk',
+        isPrivileged: false,
+      },
     ],
   });
 
@@ -61,7 +65,7 @@ export async function seedData() {
       { name: 'Active' },
       { name: 'Pending' },
       { name: 'Hold' },
-      { name: 'Eneded' },
+      { name: 'Ended' },
     ],
   });
 
@@ -75,6 +79,14 @@ export async function seedData() {
         bannerImage: 'https://www.bitcoin.com',
         description: 'The first cryptocurrency',
         userId: 1,
+      },
+      {
+        name: 'Shitcoin',
+        symbolName: 'BTC',
+        symbolImage: 'https://www.bitcoin.com',
+        bannerImage: 'https://www.bitcoin.com',
+        description: 'The first cryptocurrency',
+        userId: 2,
       },
     ],
   });
@@ -91,6 +103,10 @@ export async function seedData() {
       { coinId: 1, tokenomicsTypeId: 2, value: 0.3 },
       { coinId: 1, tokenomicsTypeId: 3, value: 0.02 },
       { coinId: 1, tokenomicsTypeId: 4, value: 0.03 },
+      { coinId: 2, tokenomicsTypeId: 1, value: 0.2 },
+      { coinId: 2, tokenomicsTypeId: 2, value: 0.3 },
+      { coinId: 2, tokenomicsTypeId: 3, value: 0.02 },
+      { coinId: 2, tokenomicsTypeId: 4, value: 0.03 },
     ],
   });
 
@@ -108,7 +124,10 @@ export async function seedData() {
 
   // PlatformLink
   await prisma.platformLink.createMany({
-    data: [{ coinId: 1, platformTypeId: 1, link: 'https://www.facebook.com' }],
+    data: [
+      { coinId: 1, platformTypeId: 1, link: 'https://www.facebook.com' },
+      { coinId: 2, platformTypeId: 2, link: 'https://www.reddit.com' },
+    ],
   });
 
   // InvestmentState
@@ -120,7 +139,9 @@ export async function seedData() {
   await prisma.coinCurrentState.createMany({
     data: [
       { coinId: 1, stateId: 1, validFrom: new Date('2024-01-02') },
-      { coinId: 1, stateId: 2, validFrom: new Date('2024-08-07') },
+      { coinId: 1, stateId: 2, validFrom: new Date('2024-04-04') },
+      { coinId: 2, stateId: 1, validFrom: new Date('2024-08-08') },
+      { coinId: 2, stateId: 2, validFrom: new Date('2024-08-09') },
     ],
   });
 
@@ -159,6 +180,15 @@ export async function seedData() {
         placedAt: new Date('2023-01-01'),
         isApproved: true,
         signature: '0x1234567890',
+      },
+      {
+        coinId: 2,
+        userId: 1,
+        investmentTypeId: 1,
+        amount: 100000000,
+        placedAt: new Date('2023-01-05'),
+        isApproved: true,
+        signature: '0x1234567823490',
       },
       {
         coinId: 1,

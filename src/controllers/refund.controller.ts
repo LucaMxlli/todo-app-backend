@@ -29,8 +29,8 @@ export class RefundController implements IRefundController {
     try {
       const walletAddress = req.query.walletAddress as string;
       const balance = await userRepo.getBalanceFromUser(walletAddress);
-      const walletBalance = await getBalance(walletAddress);
-      const calced = getBalances(walletBalance, balance);
+      // const walletBalance = await getBalance(walletAddress);
+      const calced = getBalances(0, balance);
       res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Balance fetched successfully', calced));
     } catch (error: any) {
       res.status(StatusCodes.BAD_REQUEST).json(response(StatusCodes.BAD_REQUEST, error.message, null));
