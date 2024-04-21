@@ -1,7 +1,7 @@
 export interface ICoinOverview {
   id: number;
   bannerImage: string;
-  symboldImage: string;
+  symbolImage: string;
   state: string;
   name: string;
   symbol: string;

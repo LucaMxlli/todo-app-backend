@@ -76,7 +76,7 @@ model Coin {
   totalSupply    Decimal            @default(1000000000)
   decimals       Int                @default(9)
   opensAt        DateTime           @default(now())
-  closesAt       DateTime           @default(now())
+  closesAt       DateTime          
   userId         Int
   createdAt      DateTime           @default(now())
   tradeLink      String?

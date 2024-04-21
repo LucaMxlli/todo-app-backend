@@ -1,4 +1,5 @@
 import { ICoin, ICoinOverview } from '@/types/responses/coin';
+import { lamportsToSol } from './wallet.lib';
 
 export const getCoinOverview = (coin: any): ICoinOverview => {
   const type = coin.type;
@@ -7,13 +8,13 @@ export const getCoinOverview = (coin: any): ICoinOverview => {
   let price = 0;
 
   if (type === 'fair-launch') {
-    price = (coin.totalSupply * presale) / coin.totalRaise;
+    price = (coin.totalSupply * presale) / lamportsToSol(coin.totalRaise);
   }
 
   return {
     id: coin.id,
     bannerImage: coin.bannerImage,
-    symboldImage: coin.symbolImage,
+    symbolImage: coin.symbolImage,
     state: (coin.currentState[0] as any)?.state.name || '',
     name: coin.name,
     symbol: coin.symbolName,
@@ -33,6 +34,14 @@ export const getCoinOverview = (coin: any): ICoinOverview => {
 //TODO: needs to be finished -> please keep in mind that some values need to be calculated -> set them to zero by default
 
 export const getCoinDetail = (coin: any): any => {
+  const type = coin.type;
+
+  let presale = coin.Tokenomics.find((t: any) => t.tokenomicsType.name === 'Presale')?.value || 0;
+  let price = 0;
+
+  if (type === 'fair-launch') {
+    price = (coin.totalSupply * presale) / lamportsToSol(coin.totalRaise);
+  }
   return {
     id: coin.id,
     symbolImage: coin.symbolImage,
@@ -50,11 +59,11 @@ export const getCoinDetail = (coin: any): any => {
     }),
     contractAddress: coin.contactAddress || '',
     decimals: coin.decimals,
-    totalSupply: coin.totalSupply,
+    totalSupply: Number(coin.totalSupply),
     target: coin.totalRaise,
     current: coin.current,
     softcap: coin.softcap,
-    price: coin.price,
+    price: price,
     opens: coin.opensAt,
     closes: coin.closesAt,
     minPurchase: coin.minPurchase,
@@ -64,7 +73,7 @@ export const getCoinDetail = (coin: any): any => {
     tokenomics: coin.Tokenomics.map((t: any) => {
       return {
         type: t.tokenomicsType.name,
-        value: t.value,
+        value: Number(t.value * 100),
       };
     }),
   };

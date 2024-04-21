@@ -66,6 +66,7 @@ export async function seedData() {
       { name: 'Pending' },
       { name: 'Hold' },
       { name: 'Ended' },
+      { name: 'Failed' },
     ],
   });
 
@@ -75,18 +76,24 @@ export async function seedData() {
       {
         name: 'Bitcoin',
         symbolName: 'BTC',
-        symbolImage: 'https://www.bitcoin.com',
-        bannerImage: 'https://www.bitcoin.com',
+        symbolImage:
+          'https://images.pexels.com/photos/15045040/pexels-photo-15045040/free-photo-of-meer-fashion-mode-mann.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+        bannerImage:
+          'https://images.pexels.com/photos/15045040/pexels-photo-15045040/free-photo-of-meer-fashion-mode-mann.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
         description: 'The first cryptocurrency',
         userId: 1,
+        closesAt: new Date('2024-12-12'),
       },
       {
         name: 'Shitcoin',
         symbolName: 'BTC',
-        symbolImage: 'https://www.bitcoin.com',
-        bannerImage: 'https://www.bitcoin.com',
+        symbolImage:
+          'https://images.pexels.com/photos/15045040/pexels-photo-15045040/free-photo-of-meer-fashion-mode-mann.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+        bannerImage:
+          'https://images.pexels.com/photos/15045040/pexels-photo-15045040/free-photo-of-meer-fashion-mode-mann.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
         description: 'The first cryptocurrency',
         userId: 2,
+        closesAt: new Date('2024-05-12'),
       },
     ],
   });
@@ -139,7 +146,7 @@ export async function seedData() {
   await prisma.coinCurrentState.createMany({
     data: [
       { coinId: 1, stateId: 1, validFrom: new Date('2024-01-02') },
-      { coinId: 1, stateId: 2, validFrom: new Date('2024-04-04') },
+      { coinId: 1, stateId: 2, validFrom: new Date('2024-04-21') },
       { coinId: 2, stateId: 1, validFrom: new Date('2024-08-08') },
       { coinId: 2, stateId: 2, validFrom: new Date('2024-08-09') },
     ],
