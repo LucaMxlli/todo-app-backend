@@ -8,26 +8,19 @@ datasource db {
 }
 
 model FeeType {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-  fees Fees[]
+  id              Int              @id @default(autoincrement())
+  name            String           @unique
+  investmentTypes InvestmentType[]
+  fees            Fees[]
 }
 
 model Fees {
-  amount    Decimal
-  validFrom DateTime
+  amount    BigInt
+  validFrom DateTime @default(now())
   feeTypeId Int
   feeType   FeeType  @relation(fields: [feeTypeId], references: [id])
 
   @@id([amount, validFrom, feeTypeId])
-}
-
-model FundingTarget {
-  amount    Decimal
-  validFrom DateTime
-  coins     Coin[]
-
-  @@id([amount, validFrom])
 }
 
 model PlatformType {
@@ -69,41 +62,37 @@ model Tokenomics {
 }
 
 model Coin {
-  id              Int                  @id @default(autoincrement())
-  name            String
-  symbolName      String               @unique
-  symbolImage     String
-  bannerImage     String
-  description     String
-  type            String               @default("pre-sale")
-  hardCap         Decimal?             @default(20)
-  softCap         Decimal              @default(5)
-  minInvestment   Decimal              @default(0.01)
-  maxInvestment   Decimal              @default(0.1)
-  totalSupply     Decimal              @default(1000000000)
-  decimals        Int                  @default(0)
-  targetAmount    Decimal?
-  targetValidFrom DateTime?
-  userId          Int?
-  createdAt       DateTime             @default(now())
-  buyLink         String?
-  watchLink       String?
-  contactAddress  String?
-  fundingEnd      DateTime?
-  target          FundingTarget?       @relation(fields: [targetAmount, targetValidFrom], references: [amount, validFrom])
-  user            User?                @relation(fields: [userId], references: [id])
-  collectionItems CoinCollectionItem[]
-  currentState    CoinCurrentState[]
-  investments     Investment[]
-  platformLinks   PlatformLink[]
-  featured        FeaturedCoin[]
-  Tokenomics      Tokenomics[]
+  id             Int                @id @default(autoincrement())
+  name           String
+  symbolName     String
+  symbolImage    String
+  bannerImage    String
+  description    String
+  holdDuration   Int                @default(2)
+  totalRaise     BigInt             @default(100000000000)
+  type           String             @default("fair-launch")
+  minInvestment  Decimal            @default(0.01)
+  maxInvestment  Decimal            @default(0.1)
+  totalSupply    Decimal            @default(1000000000)
+  decimals       Int                @default(9)
+  userId         Int
+  createdAt      DateTime           @default(now())
+  tradeLink      String?
+  chartLink      String?
+  contactAddress String?
+  unsoldTokens   String?            @default("burn")
+  user           User               @relation(fields: [userId], references: [id])
+  currentState   CoinCurrentState[]
+  investments    Investment[]
+  platformLinks  PlatformLink[]
+  featured       FeaturedCoin[]
+  Tokenomics     Tokenomics[]
 }
 
 model CoinCurrentState {
   coinId    Int
   stateId   Int
-  validFrom DateTime
+  validFrom DateTime  @default(now())
   coin      Coin      @relation(fields: [coinId], references: [id])
   state     CoinState @relation(fields: [stateId], references: [id])
 
@@ -112,28 +101,27 @@ model CoinCurrentState {
 
 model FeaturedCoin {
   coinId    Int
-  validFrom DateTime  @default(now())
-  validTo   DateTime?
-  coin      Coin      @relation(fields: [coinId], references: [id])
+  validFrom DateTime @default(now())
+  coin      Coin     @relation(fields: [coinId], references: [id])
 
   @@id([coinId, validFrom])
 }
 
 model BalanceTransaction {
   id            Int                    @id @default(autoincrement())
-  transacted_at DateTime
+  transacted_at DateTime               @default(now())
   typeId        Int
   value         Decimal                @default(0)
   userId        Int
   approved      Boolean                @default(false)
-  type          BalanceTransactionType @relation(fields: [typeId], references: [id])
   user          User                   @relation(fields: [userId], references: [id])
+  type          BalanceTransactionType @relation(fields: [typeId], references: [id])
 }
 
 model BalanceTransactionType {
-  id                  Int                  @id @default(autoincrement())
-  name                String               @unique
-  balanceTransactions BalanceTransaction[]
+  id           Int                  @id @default(autoincrement())
+  name         String               @unique
+  transactions BalanceTransaction[]
 }
 
 model InvestmentState {
@@ -146,84 +134,43 @@ model InvestmentCurrentState {
   coinId            Int
   userId            Int
   placedAt          DateTime
+  validFrom         DateTime        @default(now())
   investmentStateId Int
-  validFrom         DateTime
   investment        Investment      @relation(fields: [coinId, userId, placedAt], references: [coinId, userId, placedAt])
   state             InvestmentState @relation(fields: [investmentStateId], references: [id])
 
-  @@id([coinId, userId, placedAt, investmentStateId, validFrom])
+  @@id([coinId, userId, placedAt, validFrom, investmentStateId])
+}
+
+model InvestmentType {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  feeId       Int?
+  fee         FeeType?     @relation(fields: [feeId], references: [id])
+  investments Investment[]
 }
 
 model Investment {
-  coinId        Int
-  userId        Int
-  placedAt      DateTime
-  amount        Decimal
-  message       String?
-  walletAddress String?
-  signature     String                   @unique
-  coin          Coin                     @relation(fields: [coinId], references: [id])
-  user          User                     @relation(fields: [userId], references: [id])
-  currentState  InvestmentCurrentState[]
+  coinId           Int
+  userId           Int
+  placedAt         DateTime                 @default(now())
+  amount           BigInt
+  signature        String                   @unique
+  isApproved       Boolean                  @default(false)
+  investmentTypeId Int
+  investmentType   InvestmentType           @relation(fields: [investmentTypeId], references: [id])
+  coin             Coin                     @relation(fields: [coinId], references: [id])
+  user             User                     @relation(fields: [userId], references: [id])
+  currentState     InvestmentCurrentState[]
 
   @@id([coinId, userId, placedAt])
 }
 
-model CoinCollectionItem {
-  coinId Int
-  userId Int
-  coin   Coin @relation(fields: [coinId], references: [id])
-  user   User @relation(fields: [userId], references: [id])
-
-  @@id([coinId, userId])
-}
-
 model User {
-  id                  Int                  @id @default(autoincrement())
-  email               String               @unique
-  name                String
-  profilePicture      String
-  isPrivileged        Boolean              @default(false)
-  emailVerified       Boolean              @default(false)
-  lastVerifiedEmail   String?
-  balanceTransaction  BalanceTransaction[]
-  coin                Coin[]
-  coinCollectionItems CoinCollectionItem[]
-  Investment          Investment[]
-  userTokens          UserToken[]
-  wallets             Wallet[]
-}
-
-model UserBlocked {
-  userId     Int
-  gueltigAb  DateTime  @default(now())
-  gueltigBis DateTime?
-
-  @@id([userId, gueltigAb])
-}
-
-model UserToken {
-  token       String
-  userId      Int
-  used        Boolean       @default(false)
-  tokenTypeId Int
-  validFrom   DateTime
-  expires     DateTime
-  tokenType   UserTokenType @relation(fields: [tokenTypeId], references: [id])
-  user        User          @relation(fields: [userId], references: [id])
-
-  @@id([userId, tokenTypeId, validFrom])
-}
-
-model UserTokenType {
-  id        Int         @id @default(autoincrement())
-  name      String      @unique
-  userToken UserToken[]
-}
-
-model Wallet {
-  address String   @id
-  userId  Int
-  addedAt DateTime @default(now())
-  user    User     @relation(fields: [userId], references: [id])
+  id                 Int                  @id @default(autoincrement())
+  isPrivileged       Boolean              @default(false)
+  walletAddress      String?              @unique
+  balanceTransaction BalanceTransaction[]
+  coin               Coin[]
+  Investment         Investment[]
 }
