@@ -88,7 +88,7 @@ export class CoinRepo implements ICoinRepo {
       const coin = await this.getCoinById(i.coinId);
       return {
         ...coin,
-        tokenomics: await this.getTokenomics(i.coinId),
+        Tokenomics: await this.getTokenomics(i.coinId),
       };
     });
 
@@ -136,6 +136,12 @@ export class CoinRepo implements ICoinRepo {
         }
       });
     }
+
+    filteredCoins = filteredCoins.filter((c) => {
+      if (c.currentState[0]?.state.name.toLocaleLowerCase() !== 'edit') {
+        return true;
+      }
+    });
 
     const mapped = filteredCoins.map(async (c) => {
       const current = await this.getCoinCurrent(c.id);
@@ -382,7 +388,7 @@ export class CoinRepo implements ICoinRepo {
         ...c,
         current,
         supporters,
-        tokenomics: tokenomics,
+        Tokenomics: tokenomics,
       };
     });
 

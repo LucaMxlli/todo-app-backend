@@ -22,7 +22,7 @@ export class UserRepo implements IUserRepo {
       });
     }
 
-    return true;
+    return { walletAddress };
   }
 
   async getBalanceFromUser(walletAddress: string): Promise<any> {

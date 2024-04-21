@@ -147,8 +147,8 @@ export async function seedData() {
     data: [
       { coinId: 1, stateId: 1, validFrom: new Date('2024-01-02') },
       { coinId: 1, stateId: 2, validFrom: new Date('2024-04-21') },
-      { coinId: 2, stateId: 1, validFrom: new Date('2024-08-08') },
-      { coinId: 2, stateId: 2, validFrom: new Date('2024-08-09') },
+      { coinId: 2, stateId: 1, validFrom: new Date('2024-03-08') },
+      { coinId: 2, stateId: 2, validFrom: new Date('2024-04-09') },
     ],
   });
 
