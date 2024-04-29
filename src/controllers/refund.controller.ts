@@ -9,6 +9,7 @@ import { getBalance } from '@/lib/wallet.lib';
 
 const coinRepo = new RefundRepo();
 const userRepo = new UserRepo();
+const refundRepo = new RefundRepo();
 
 export class RefundController implements IRefundController {
   async getRefundHistory(req: Request, res: Response): Promise<void> {
@@ -32,6 +33,21 @@ export class RefundController implements IRefundController {
       // const walletBalance = await getBalance(walletAddress);
       const calced = getBalances(0, balance);
       res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Balance fetched successfully', calced));
+    } catch (error: any) {
+      res.status(StatusCodes.BAD_REQUEST).json(response(StatusCodes.BAD_REQUEST, error.message, null));
+    }
+  }
+
+  async requestRefund(req: Request, res: Response): Promise<void> {
+    try {
+      const walletAddress = req.body.walletAddress;
+      const user = await userRepo.getUserByWalletAddress(walletAddress);
+      if (!user) {
+        res.status(StatusCodes.BAD_REQUEST).json(response(StatusCodes.BAD_REQUEST, 'User not found', null));
+        return;
+      }
+      const refund = await refundRepo.requestRefund(user.id);
+      res.status(StatusCodes.OK).json(response(StatusCodes.OK, 'Refund requested successfully', refund));
     } catch (error: any) {
       res.status(StatusCodes.BAD_REQUEST).json(response(StatusCodes.BAD_REQUEST, error.message, null));
     }

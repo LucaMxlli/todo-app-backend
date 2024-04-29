@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 
 export class UserRepo implements IUserRepo {
   async getUserByWalletAddress(walletAddress: string): Promise<any> {
+    if (!walletAddress) throw new Error('Wallet address is required');
     const user = await prisma.user.findUnique({
       where: {
         walletAddress: walletAddress,

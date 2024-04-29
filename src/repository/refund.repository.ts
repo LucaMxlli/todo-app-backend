@@ -19,4 +19,17 @@ export class RefundRepo implements IRefundRepo {
 
     return history;
   }
+
+  async requestRefund(userId: number) {
+    const refund = await prisma.balanceTransaction.create({
+      data: {
+        userId: userId,
+        value: 0,
+        typeId: 2,
+        approved: false,
+      },
+    });
+
+    return Number(refund.value);
+  }
 }
