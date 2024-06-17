@@ -1,4 +1,4 @@
-# Flurme backend
+# Backend instructions
 
 ## Setup
 
